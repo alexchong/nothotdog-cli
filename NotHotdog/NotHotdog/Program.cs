@@ -1,13 +1,23 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace NotHotdog
 {
     class NotHotdog
     {
+        //public enum Hotdog
+        //{
+        //    Hotdog,
+        //    NotHotdog
+        //}
+
         public string[] SubscriptionKey { get; private set; } = new string[2];
 
-        // Read in text file with Computer Vision API key/endpoint
+        /// <summary>
+        /// Read in text file with Computer Vision API key/endpoint
+        /// </summary>
         public void ReadSubscriptionKey()
         {
             {
@@ -27,6 +37,10 @@ namespace NotHotdog
                         }
                     }
                 }
+                catch (IOException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
                 // TODO: Implement more specific Exceptions for read file errors
                 catch (Exception e)
                 {
@@ -35,24 +49,39 @@ namespace NotHotdog
             }
         }
 
-        // Initialize app components
-        public void Init()
+
+        /// <summary>
+        /// Authenticate API key to create new Computer Vision client
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="endpoint"></param>
+        /// <returns></returns>
+        public ComputerVisionClient Authenticate(string key, string endpoint)
         {
-            ReadSubscriptionKey();
+            ComputerVisionClient client = new ComputerVisionClient
+                (new ApiKeyServiceClientCredentials(key)) { Endpoint = endpoint };
+            return client;
+        }
+
+        public NotHotdog()
+        {
+            try
+            {
+                ReadSubscriptionKey();
+                ComputerVisionClient client = Authenticate(SubscriptionKey[0], SubscriptionKey[1]);
+            }
+            // Catch any unexpected errors
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
     class Program
     {
         static void Main(string[] args)
         {
-            // NOTE: Test for if `SubscriptionKey`  works
-            NotHotdog app = new NotHotdog();
-            app.Init();
-            string[] foo = new string[2];
-            foreach (string line in app.SubscriptionKey)
-            {
-                Console.WriteLine(line);
-            }
+
         }
     }
 }
