@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -53,6 +55,38 @@ namespace NotHotdog
             return client;
         }
 
+        /// <summary>
+        /// Checks if the argument is a valid url to an image
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public bool IsImageUrl(string url)
+        {
+            try
+            {
+                // Initialize web request for url
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                // Assign the web request method to GET HTTP header
+                request.Method = "HEAD";
+
+                // Invoke the GET method and return true if url header starts with `image/`
+                using (var response = request.GetResponse())
+                {
+                    return response.ContentType.ToLower().StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch (WebException e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+        }
+
         public async Task AnalyzeImage(ComputerVisionClient client)
         {
             while (true)
@@ -63,7 +97,7 @@ namespace NotHotdog
                 // Use regex to test for valid image url (e.g. ...com/hot-dog.jpg)
                 var url = Console.ReadLine();
 
-                // TODO: If image is not hotdog, let the user know the image is literally not a hotdog; 
+                // TODO: If image is not hotdog, let the user know the image is literally not a hotdog
                 List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
                     {
                         VisualFeatureTypes.Description, VisualFeatureTypes.Categories
@@ -74,13 +108,16 @@ namespace NotHotdog
                 // NOTE: Testing get methods for image captions
                 foreach (var caption in results.Description.Captions)
                 {
-                    Console.WriteLine($"{caption.Text} with confidence {caption.Confidence}");
+                    //Console.WriteLine($"{caption.Text} with confidence {caption.Confidence}");
+                    if (caption.Text.Contains("hotdog")) { Console.WriteLine("This is a hotdog"); }
+                    else { Console.WriteLine("This is not a hotdog"); }
                 }
 
-                foreach (var caption in results.Categories)
-                {
-                    Console.WriteLine($"{caption.Name} with confidence {caption.Score}");
-                }
+
+                //foreach (var caption in results.Categories)
+                //{
+                //    Console.WriteLine($"{caption.Name} with confidence {caption.Score}");
+                //}
 
                 return;
 
@@ -88,6 +125,7 @@ namespace NotHotdog
 
         }
 
+        // Default constructor
         public NotHotdog()
         {
             try
@@ -107,6 +145,7 @@ namespace NotHotdog
     {
         static void Main(string[] args)
         {
+
             NotHotdog app = new NotHotdog();
         }
     }
