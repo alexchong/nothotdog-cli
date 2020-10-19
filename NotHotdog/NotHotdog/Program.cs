@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,11 +88,21 @@ namespace NotHotdog
             }
         }
 
+
         public static async Task AnalyzeImage(ComputerVisionClient client)
         {
+            // Initialize List for GET response items
+            List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
+            {
+                VisualFeatureTypes.Description, VisualFeatureTypes.Categories
+            };
+
+            // Initialize expression variable to invoke remote image analysis
+            ImageAnalysis results;
+
             string url;
 
-            // Invoke image url validation
+            // Assign GET response list items if food image URL is finally validated
             while (true)
             {
                 Console.Write("Enter food image full url (e.g. https://...): ");
@@ -100,18 +111,27 @@ namespace NotHotdog
                 if (IsImageUrl(input))
                 {
                     url = input;
-                    break;
+                    // Assign expression to invoke remote image analysis
+                    results = await client.AnalyzeImageAsync(url, features);
+
+                    foreach (var category in results.Categories)
+                    {
+                        if (!category.Name.Contains("food"))
+                        {
+                            Console.WriteLine("Subject of image is not food. Please upload an image of food");
+                        }
+                        else
+                        {
+                            // Terminate indefinite while loop upon total food image validation
+                            break;
+                        }
+                    }
                 }
-                //else { Console.WriteLine("The image url is invalid. Please try again."); }
+
             }
 
             // TODO: If image is not hotdog, let the user know the image is literally not a hotdog
-            List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
-                    {
-                        VisualFeatureTypes.Description, VisualFeatureTypes.Categories
-                    };
 
-            ImageAnalysis results = await client.AnalyzeImageAsync(url, features);
 
             //// NOTE: Testing get methods for image captions
             //foreach (var caption in results.Description.Captions)
@@ -120,11 +140,6 @@ namespace NotHotdog
             //    //if (caption.Text.Contains("hotdog") || caption.Text.Contains("hot dog")) { Console.WriteLine("Hotdog"); }
             //    //else { Console.WriteLine("Not Hotdog"); }
             //}
-
-            foreach (var category in results.Categories)
-            {
-                Console.WriteLine($"{category.Name} with confidence {category.Score}");
-            }
 
         }
 
