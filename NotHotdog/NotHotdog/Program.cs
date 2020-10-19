@@ -9,7 +9,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace NotHotdog
 {
-    class NotHotdog
+    class App
     {
         //public enum Hotdog
         //{
@@ -17,12 +17,12 @@ namespace NotHotdog
         //    NotHotdog
         //}
 
-        public string[] SubscriptionKey { get; private set; } = new string[2];
+        public static string[] SubscriptionKey { get; private set; } = new string[2];
 
         /// <summary>
         /// Read in text file with Computer Vision API key/endpoint
         /// </summary>
-        public void ReadSubscriptionKey()
+        public static void ReadSubscriptionKey()
         {
 
             // TODO: Retrieve path  based on user directory/environment variables
@@ -47,7 +47,7 @@ namespace NotHotdog
         /// <param name="key"></param>
         /// <param name="endpoint"></param>
         /// <returns></returns>
-        public ComputerVisionClient Authenticate(string key, string endpoint)
+        public static ComputerVisionClient Authenticate(string key, string endpoint)
         {
             ComputerVisionClient client = new ComputerVisionClient
                 (new ApiKeyServiceClientCredentials(key))
@@ -60,7 +60,7 @@ namespace NotHotdog
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public bool IsImageUrl(string url)
+        public static bool IsImageUrl(string url)
         {
             try
             {
@@ -87,46 +87,49 @@ namespace NotHotdog
             }
         }
 
-        public async Task AnalyzeImage(ComputerVisionClient client)
+        public static async Task AnalyzeImage(ComputerVisionClient client)
         {
+            string url;
+
+            // Invoke image url validation
             while (true)
             {
+                Console.Write("Enter food image full url (e.g. https://...): ");
+                var input = Console.ReadLine();
 
-                Console.Write("Enter image url: ");
+                if (IsImageUrl(input))
+                {
+                    url = input;
+                    break;
+                }
+                //else { Console.WriteLine("The image url is invalid. Please try again."); }
+            }
 
-                // Use regex to test for valid image url (e.g. ...com/hot-dog.jpg)
-                var url = Console.ReadLine();
-
-                // TODO: If image is not hotdog, let the user know the image is literally not a hotdog
-                List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
+            // TODO: If image is not hotdog, let the user know the image is literally not a hotdog
+            List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
                     {
                         VisualFeatureTypes.Description, VisualFeatureTypes.Categories
                     };
 
-                ImageAnalysis results = await client.AnalyzeImageAsync(url, features);
+            ImageAnalysis results = await client.AnalyzeImageAsync(url, features);
 
-                // NOTE: Testing get methods for image captions
-                foreach (var caption in results.Description.Captions)
-                {
-                    //Console.WriteLine($"{caption.Text} with confidence {caption.Confidence}");
-                    if (caption.Text.Contains("hotdog")) { Console.WriteLine("This is a hotdog"); }
-                    else { Console.WriteLine("This is not a hotdog"); }
-                }
+            //// NOTE: Testing get methods for image captions
+            //foreach (var caption in results.Description.Captions)
+            //{
+            //    Console.WriteLine($"{caption.Text} with confidence {caption.Confidence}");
+            //    //if (caption.Text.Contains("hotdog") || caption.Text.Contains("hot dog")) { Console.WriteLine("Hotdog"); }
+            //    //else { Console.WriteLine("Not Hotdog"); }
+            //}
 
-
-                //foreach (var caption in results.Categories)
-                //{
-                //    Console.WriteLine($"{caption.Name} with confidence {caption.Score}");
-                //}
-
-                return;
-
+            foreach (var category in results.Categories)
+            {
+                Console.WriteLine($"{category.Name} with confidence {category.Score}");
             }
 
         }
 
         // Default constructor
-        public NotHotdog()
+        public App()
         {
             try
             {
@@ -141,12 +144,12 @@ namespace NotHotdog
             }
         }
     }
+
     class Program
     {
         static void Main(string[] args)
         {
-
-            NotHotdog app = new NotHotdog();
+            new App();
         }
     }
 }
