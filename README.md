@@ -4,7 +4,15 @@ Image analysis app created with .NET Core and Azure [Computer Vision](https://az
 ## Installation
 ###  Requirements
 - [.NET Core SDK](https://dotnet.microsoft.com/download) latest or 3.1 version to publish app
+- [Computer Vision API key/endpoint](https://portal.azure.com/#home)
+    - Tutorial to [create access to the API resource on Azure](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/quickstart-create-templates-use-the-portal)
 - [Visual Studio](https://visualstudio.microsoft.com/) to build the app *(optional)*
+
+Move `azure-cv-apikey.txt` to your `Documents` folder and overwrite each entire line containing `key` and `endpoint` with your own Computer Vision API credentials.
+```
+key # e.g. 2ab96390c7dbe3439de74d0c9b0b1767
+endpoint # e.g. https://user-nothotdog.cognitiveservices.azure.com/
+```
 
 Run the following command in a command-line interface (CLI) in the working directory containing `NotHotdog.sln`
 ```
