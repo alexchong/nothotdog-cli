@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Console = Colorful.Console;
 
 namespace NotHotdog
 {
@@ -17,27 +14,28 @@ namespace NotHotdog
         /// Initialize client connection with Computer Vision API
         /// </summary>
         public static ComputerVisionClient Client { get; } = Connect.AuthenticateSession();
+        // Property for validated URL
+        public static string ValidatedURL { get; private set; }
+        // Property for image description caption
+        public static string ImageDescription { get; private set; }
 
         /// <summary>
         /// Initialize List to store items from image features
         /// </summary>
-        static List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
+        public static List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
             {
                 VisualFeatureTypes.Description, VisualFeatureTypes.Categories
             };
-        
-        // Declare string for analyzed image caption description
-        static string imageDescription;
 
         // Declare variable that stores async GET response of image analysis
-        static ImageAnalysis results;
+        public static ImageAnalysis results;
 
         /// <summary>
         ///  Method to validate if url has an image header
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static bool IsRemoteImageUrl(string url)
+        private static bool IsRemoteImageUrl(string url)
         {
             try
             {
@@ -68,9 +66,9 @@ namespace NotHotdog
         /// <summary>
         /// Helper method to invoke remote image analysis w/ client connection
         /// </summary>
-        public static void AnalyzeRemoteImageHelper()
+        public static void AnalyzeRemoteImageHelper(string url)
         {
-            AnalyzeRemoteImage(Client).Wait();
+            AnalyzeRemoteImage(Client, url).Wait();
         }
 
         /// <summary>
@@ -78,35 +76,20 @@ namespace NotHotdog
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public static async Task AnalyzeRemoteImage(ComputerVisionClient client)
+        private static async Task AnalyzeRemoteImage(ComputerVisionClient client, string url)
         {
-
-            string url;
-            string input;
-
-
             // Assign GET response list items if food image URL is finally validated
-            while (true)
-            {
-                Console.Write("Enter/Paste food image full url (e.g. https://*.jpg): ");
-                input = Console.ReadLine();
-
-                if (IsRemoteImageUrl(input))
-                {
-                    url = input;
-                    break;
-                }
-
-            }
+            if (IsRemoteImageUrl(url))
+                ValidatedURL = url;
+            else
+                return;
 
             // Assign expression to invoke remote image analysis
-            results = await client.AnalyzeImageAsync(url, features);
+            results = await client.AnalyzeImageAsync(ValidatedURL, features);
 
             // Assign image description caption
-            imageDescription = results.Description.Captions[0].Text;
+            ImageDescription = results.Description.Captions[0].Text;
 
-            System.Console.WriteLine("\nAnalyzing image...\n", Color.AntiqueWhite);
-            Thread.Sleep(3000);
         }
 
         /// <summary>
@@ -119,13 +102,8 @@ namespace NotHotdog
             {
                 if (!category.Name.Contains("food"))
                 {
-                    Console.WriteLine("Subject of image is not food.");
-                    Thread.Sleep(3000);
-                    Console.WriteLine($"You entered an image URL of {imageDescription}.", Color.LightGoldenrodYellow);
-                    Thread.Sleep(3000);
-                    Console.WriteLine("\n( u_u) Please enter an image URL of food.\n");
-                    Thread.Sleep(1500);
-                    AnalyzeRemoteImageHelper();
+                    // Recursively invoke `AnalyzeRemoteImage` to assist with 
+                    AnalyzeRemoteImageHelper(ValidatedURL);
                     return false;
                 }
             }

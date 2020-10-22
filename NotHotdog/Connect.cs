@@ -5,12 +5,12 @@ namespace NotHotdog
 {
     public class Connect
     {
-        public static string[] SubscriptionKey { get; set; } = new string[2];
+        private static string[] SubscriptionKey { get; set; } = new string[2];
 
         /// <summary>
         /// Read in text file with Computer Vision API key/endpoint
         /// </summary>
-        public static void ReadSubscriptionKey()
+        private static void ReadSubscriptionKey()
         {
 
             // TODO: Retrieve path  based on user directory/environment variables
