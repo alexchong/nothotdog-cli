@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Threading;
 using Console = Colorful.Console;
 
@@ -85,15 +86,22 @@ namespace NotHotdog
         public App()
         {
             PrintHotdog();
-
             while (true)
             {
-                // NOTE: `url` must be full address (e.g.. https://www.*.jpg
-                ComputerVision.AnalyzeRemoteImageHelper(InputImageURL());
+                try
+                {
+                    ComputerVision.AnalyzeRemoteImageHelper(InputImageURL());
+                    HotdogPrompt();
+                    IsExit();
+                }
+                catch (NullReferenceException e)
+                {
+                    //
+                }
+                catch (Exception e)
+                {
 
-                HotdogPrompt();
-
-                IsExit();
+                }
             }
 
         }
@@ -101,15 +109,19 @@ namespace NotHotdog
         public App(string url)
         {
             PrintHotdog();
-
-            while (true)
+            try
             {
-                // NOTE: `url` must be full address (e.g.. https://www.*.jpg
                 ComputerVision.AnalyzeRemoteImageHelper(url);
-
                 HotdogPrompt();
-
                 return;
+            }
+            catch (NullReferenceException e)
+            {
+
+            }
+            catch (Exception e)
+            {
+
             }
         }
     }

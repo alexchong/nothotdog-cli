@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
 namespace NotHotdog
@@ -14,7 +15,7 @@ namespace NotHotdog
         {
 
             // TODO: Retrieve path  based on user directory/environment variables
-            string filePath = @"C:\Users\Alex\source\repos\NotHotdog\NotHotdog\key.txt";
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "azure-cv-apikey.txt");
 
             using (StreamReader sr = File.OpenText(filePath))
             {
