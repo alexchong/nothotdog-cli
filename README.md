@@ -1,6 +1,8 @@
 # 🌭 nothotdog-cli 
 Image analysis app created with .NET Core and Azure [Computer Vision](https://azure.microsoft.com/en-us/services/cognitive-services/computer-vision/) API to determine if an uploaded picture is a hotdog or not hotdog (inspired by Pied Piper's [Not Hotdog](https://www.youtube.com/watch?v=ACmydtFDTGs))
 
+![Not Hotdog Demonstration](https://github.com/alexchong/nothotdog-cli/blob/main/static/nothotdog.gif)
+
 ## Installation
 ###  Requirements
 - [.NET Core SDK](https://dotnet.microsoft.com/download) latest or 3.1 version to publish app
