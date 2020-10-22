@@ -94,13 +94,13 @@ namespace NotHotdog
                     HotdogPrompt();
                     IsExit();
                 }
-                catch (NullReferenceException e)
+                catch (NullReferenceException)
                 {
-                    //
+                    System.Console.WriteLine("The URL pasted from clipboard is not a valid direct link to an image.");
                 }
                 catch (Exception e)
                 {
-
+                    System.Console.WriteLine(e.Message);
                 }
             }
 
@@ -115,13 +115,13 @@ namespace NotHotdog
                 HotdogPrompt();
                 return;
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
             {
-
+                System.Console.WriteLine("The URL argument used is not a valid direct link to an image.");
             }
             catch (Exception e)
             {
-
+                System.Console.WriteLine(e.Message);
             }
         }
     }
